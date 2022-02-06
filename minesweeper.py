@@ -192,7 +192,7 @@ class MinesweeperAI():
 
         # 3. Add new sentence to knowledge base
         # 3.1 Create a set for nearby cells
-        new_set = set()
+        nearby_cells = set()
 
         # 3.2 Loop over all cells within one row and column
         for i in range(cell[0] - 1, cell[0] +2):
@@ -204,18 +204,18 @@ class MinesweeperAI():
                 
                 # add cell in bounds to new_set
                 if 0 <=i < self.height and 0<= j < self.width:
-                    new_set.add((i, j))
+                    nearby_cells.add((i, j))
 
         # 3.3 Append sentence to knowledge base with set and count
-        self.knowledge.append(Sentence(new_set, count))
+        self.knowledge.append(Sentence(nearby_cells, count))
 
         # 4. Mark additional cells as safe or as mines
         if count == 0:
-            for cell in new_set:
+            for cell in nearby_cells:
                 self.mark_safe(cell)
 
-        if count == len(new_set):
-            for cell in new_set:
+        if count == len(nearby_cells):
+            for cell in nearby_cells:
                 self.mark_mine(cell)
 
 
