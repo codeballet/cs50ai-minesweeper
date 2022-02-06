@@ -105,15 +105,15 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        if len(self.cells[0]) == self.count:
-            return self.cells[0]
+        if len(self.cells) == self.count:
+            return self.cells
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
         if self.count == 0:
-            return self.cells[0]
+            return self.cells
 
     def mark_mine(self, cell):
         """
@@ -127,9 +127,9 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        if cell in self.cells[0]:
+        if cell in self.cells:
             # Remove cell from sentence
-            self.cells[0].remove(cell)
+            self.cells.remove(cell)
 
 
 class MinesweeperAI():
@@ -196,7 +196,7 @@ class MinesweeperAI():
 
         # 3. Add new sentence to knowledge base
         # 3.1 Create a set for nearby cells
-        nearby_cells = set()
+        nearby_cells = []
 
         # 3.2 Loop over all cells within one row and column
         for i in range(cell[0] - 1, cell[0] +2):
