@@ -230,7 +230,16 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
+        # Get a list of all available safe cells
+        safe_list = []
+
+        for i in range(self.height):
+            for j in range(self.width):
+                if (i, j) in self.safes and (i, j) not in self.moves_made and (i, j) not in self.mines:
+                    safe_list.append(i, j)
+
+        # Return randomly selected safe move
+        return random.choice(safe_list)
 
     def make_random_move(self):
         """
@@ -247,4 +256,5 @@ class MinesweeperAI():
                 if (i, j) not in self.moves_made and (i, j) not in self.mines:
                     random_list.append(i, j)
 
+        # Return randomly selected move from list
         return random.choice(random_list)
