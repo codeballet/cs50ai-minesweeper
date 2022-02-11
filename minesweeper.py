@@ -176,42 +176,50 @@ class MinesweeperAI():
 
 
     def mark_cells(self, changed):
+        print('inside mark_cells')
         # Mark cells as mines or safes
         if not changed:
             return None
 
-        mines_count = 0
-        safes_count = 0
+        changed = False
 
         for sentence in self.knowledge:
             # Check for mines
             check_mines = sentence.known_mines()
-            if len(check_mines) != 0:
-                for mine in check_mines:
-                    self.mark_mine(mine)
-                    mines_count += 1
+            if check_mines:
+                fcheck_mines = frozenset(check_mines)
+                if len(fcheck_mines) != 0:
+                    for mine in fcheck_mines:
+                        self.mark_mine(mine)
+                    changed = True
             # Check for safes
             check_safes = sentence.known_safes()
-            if len(check_safes) != 0:
-                for safe in check_safes:
-                    self.mark_safe(safe)
-                    safes_count += 1
+            if check_safes:
+                fcheck_safes = frozenset(check_safes)
+                if len(fcheck_safes) != 0:
+                    for safe in fcheck_safes:
+                        self.mark_safe(safe)
+                    changed = True
 
         # Check if new sentences can be inferred from existing knowledge
         self.infer_knowledge(changed)
 
 
     def infer_knowledge(self, changed):
+        print('inside infer_knowledge')
         if not changed:
             return None
 
         changed = False
         subset_found = False
+        changed_sentences = []
 
         for sentence1 in self.knowledge:
+            print(f'sentence1: {sentence1}')
             for sentence2 in self.knowledge:
-                if sentence1 != sentence2:
-                    if sentence2.issubset(sentence1):
+                print(f'sentence2: {sentence2}')
+                if sentence2 != sentence1:
+                    if sentence2.cells.issubset(sentence1.cells):
                         subset_found = True
                         # Create a new set from the difference
                         new_set =  sentence1.cells.difference(sentence2.cells)
@@ -223,12 +231,17 @@ class MinesweeperAI():
                         new_sentence = Sentence(new_set, new_count)
                         self.knowledge.append(new_sentence)
 
-                        # Change to knowledge has been made
-                        changed = True
-
-            # If subset found, remove sentence1
             if subset_found:
-                self.knowledge.remove(sentence1)
+                # Register changed sentence
+                changed_sentences.append(sentence1)
+
+                # Change to knowledge has been made
+                changed = True
+
+        # Remove changed sentences
+        for sentence in changed_sentences:
+            print(f'remove sentence: {sentence}')
+            self.knowledge.remove(sentence)
 
         self.mark_cells(changed)
 
@@ -270,7 +283,7 @@ class MinesweeperAI():
                 
                 # add cell in bounds to new_set
                 if 0 <=i < self.height and 0<= j < self.width:
-                    nearby_cells.add((i, j))
+                    nearby_cells.append((i, j))
 
         # 3.3 Append sentence to knowledge base with set and count
         self.knowledge.append(Sentence(nearby_cells, count))
@@ -295,10 +308,13 @@ class MinesweeperAI():
         for i in range(self.height):
             for j in range(self.width):
                 if (i, j) in self.safes and (i, j) not in self.moves_made and (i, j) not in self.mines:
-                    safe_list.append(i, j)
+                    safe_list.append((i, j))
 
-        # Return randomly selected safe move
-        return random.choice(safe_list)
+        # Return randomly selected safe move or None
+        if len(safe_list) != 0:
+            return random.choice(safe_list)
+        else:
+            return None
 
     def make_random_move(self):
         """
@@ -313,7 +329,7 @@ class MinesweeperAI():
         for i in range(self.height):
             for j in range(self.width):
                 if (i, j) not in self.moves_made and (i, j) not in self.mines:
-                    random_list.append(i, j)
+                    random_list.append((i, j))
 
         # Return randomly selected move from list
         return random.choice(random_list)
