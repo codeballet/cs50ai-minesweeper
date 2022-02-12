@@ -240,12 +240,11 @@ class MinesweeperAI():
                 changed = True
 
         # Remove changed sentences
-        knowledge_copy = copy.deepcopy(self.knowledge)
-        for sentence_existing in knowledge_copy:
-            for sentence_changed in changed_sentences:
-                if sentence_existing == sentence_changed:
-                    self.knowledge.remove(sentence_existing)
+        for sentence in changed_sentences:
+            if sentence in self.knowledge:
+                self.knowledge.remove(sentence)
 
+        # Check for new cells to mark
         self.mark_cells(changed)
 
 
