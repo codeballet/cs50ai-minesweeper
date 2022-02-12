@@ -1,5 +1,6 @@
 import itertools
 import random
+import copy
 
 
 class Minesweeper():
@@ -239,9 +240,11 @@ class MinesweeperAI():
                 changed = True
 
         # Remove changed sentences
-        for sentence in changed_sentences:
-            print(f'remove sentence: {sentence}')
-            self.knowledge.remove(sentence)
+        knowledge_copy = copy.deepcopy(self.knowledge)
+        for sentence_existing in knowledge_copy:
+            for sentence_changed in changed_sentences:
+                if sentence_existing == sentence_changed:
+                    self.knowledge.remove(sentence_existing)
 
         self.mark_cells(changed)
 
