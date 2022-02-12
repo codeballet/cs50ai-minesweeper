@@ -212,36 +212,43 @@ class MinesweeperAI():
             return None
 
         changed = False
-        subset_found = False
         changed_sentences = []
+        found_subset = False
+        knowledge_copy = copy.deepcopy(self.knowledge)
 
-        for sentence1 in self.knowledge:
+        for sentence1 in knowledge_copy:
             print(f'sentence1: {sentence1}')
-            for sentence2 in self.knowledge:
+            for sentence2 in knowledge_copy:
+                if sentence1 == sentence2:
+                    continue
+
                 print(f'sentence2: {sentence2}')
-                if sentence2 != sentence1:
-                    if sentence2.cells.issubset(sentence1.cells):
-                        subset_found = True
-                        # Create a new set from the difference
-                        new_set =  sentence1.cells.difference(sentence2.cells)
+                if sentence2.cells.issubset(sentence1.cells):
+                    found_subset = True
+                    # Create a new set from the difference
+                    new_set =  sentence1.cells.difference(sentence2.cells)
 
-                        # Adjust the count for the new set
-                        new_count = sentence1.count - sentence2.count
+                    # Adjust the count for the new set
+                    new_count = sentence1.count - sentence2.count
 
-                        # Add new sentence to knowledge
-                        new_sentence = Sentence(new_set, new_count)
-                        self.knowledge.append(new_sentence)
+                    # Add new sentence to knowledge
+                    new_sentence = Sentence(new_set, new_count)
+                    self.knowledge.append(new_sentence)
 
-            if subset_found:
+            if found_subset:
                 # Register changed sentence
+                print('registering changed sentence')
                 changed_sentences.append(sentence1)
 
                 # Change to knowledge has been made
                 changed = True
+                print('end of if subset loop')
 
         # Remove changed sentences
         for sentence in changed_sentences:
+            print('about to remove changed sentence')
             if sentence in self.knowledge:
+                print('removing changed sentence')
                 self.knowledge.remove(sentence)
 
         # Check for new cells to mark
