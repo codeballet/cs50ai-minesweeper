@@ -186,7 +186,6 @@ class MinesweeperAI():
 
                 # Ignore already determined cells
                 if (i,j) in self.moves_made or (i,j) in self.safes:
-                    # or (i,j) in self.mines or (i,j) in self.safes:
                     continue
                 
                 # add cell in bounds to new_set
