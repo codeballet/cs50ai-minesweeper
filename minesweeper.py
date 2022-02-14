@@ -185,7 +185,8 @@ class MinesweeperAI():
             for j in range(cell[1] - 1, cell[1] + 2):
 
                 # Ignore already determined cells
-                if (i,j) in self.moves_made or (i,j) in self.mines or (i,j) in self.safes:
+                if (i,j) in self.moves_made or (i,j) in self.safes:
+                    # or (i,j) in self.mines or (i,j) in self.safes:
                     continue
                 
                 # add cell in bounds to new_set
@@ -197,16 +198,16 @@ class MinesweeperAI():
 
 
     def mark_cells(self, changed):
-        print('inside mark_cells')
-        # Mark cells as mines or safes
         if not changed:
+            # Break recursion
             return None
 
+        # Set variables
         changed = False
         mines = set()
         safes = set()
 
-        # Get all the mines and safes
+        # Get all known mines and safes
         for sentence in self.knowledge:
             if sentence.known_mines():
                 mines = mines.union(sentence.known_mines())
@@ -227,48 +228,45 @@ class MinesweeperAI():
 
 
     def infer_knowledge(self, changed):
-        print('inside infer_knowledge')
         if not changed:
+            # Break recursion
             return None
 
         changed = False
+
+        # Remove empty sentences
+        for sentence in self.knowledge:
+            if sentence.cells == set():
+                self.knowledge.remove(sentence)
+
+        # Set variables
         changed_sentences = []
         found_subset = False
         knowledge_copy = copy.deepcopy(self.knowledge)
 
+        # Look for subsets to infer new knowledge
         for sentence1 in knowledge_copy:
-            print(f'sentence1: {sentence1}')
             for sentence2 in knowledge_copy:
                 if sentence1 == sentence2:
                     continue
 
-                print(f'sentence2: {sentence2}')
                 if sentence2.cells.issubset(sentence1.cells):
                     found_subset = True
-                    # Create a new set from the difference
                     new_set =  sentence1.cells.difference(sentence2.cells)
-
-                    # Adjust the count for the new set
                     new_count = sentence1.count - sentence2.count
-
-                    # Add new sentence to knowledge
                     new_sentence = Sentence(new_set, new_count)
                     self.knowledge.append(new_sentence)
 
             if found_subset:
                 # Register changed sentence
-                print('registering changed sentence')
                 changed_sentences.append(sentence1)
 
-                # Change to knowledge has been made
+                # Knowledge base changed
                 changed = True
-                print('end of if subset loop')
 
-        # Remove changed sentences
+        # Remove changed_sentences from knowledge base
         for sentence in changed_sentences:
-            print('about to remove changed sentence')
             if sentence in self.knowledge:
-                print('removing changed sentence')
                 self.knowledge.remove(sentence)
 
         # Check for new cells to mark
@@ -336,6 +334,9 @@ class MinesweeperAI():
             for j in range(self.width):
                 if (i, j) not in self.moves_made and (i, j) not in self.mines:
                     random_list.append((i, j))
+
+        if len(random_list) == 0:
+            return None
 
         # Return randomly selected move from list
         return random.choice(random_list)
