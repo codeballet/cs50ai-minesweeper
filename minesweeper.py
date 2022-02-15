@@ -175,26 +175,24 @@ class MinesweeperAI():
         for sentence in self.knowledge:
             sentence.mark_safe(cell)
 
-
     def add_sentence(self, cell, count):
         # Create set for nearby cells
         nearby_cells = []
 
         # Loop over all cells within one row and column of cell
-        for i in range(cell[0] - 1, cell[0] +2):
+        for i in range(cell[0] - 1, cell[0] + 2):
             for j in range(cell[1] - 1, cell[1] + 2):
 
                 # Ignore already determined cells
-                if (i,j) in self.moves_made or (i,j) in self.safes:
+                if (i, j) in self.moves_made or (i, j) in self.safes:
                     continue
-                
+
                 # add cell in bounds to new_set
                 if 0 <= i < self.height and 0 <= j < self.width:
                     nearby_cells.append((i, j))
 
         # Append sentence to knowledge base with set and count
         self.knowledge.append(Sentence(nearby_cells, count))
-
 
     def mark_cells(self, changed):
         if not changed:
@@ -212,7 +210,7 @@ class MinesweeperAI():
                 mines = mines.union(sentence.known_mines())
             if sentence.known_safes():
                 safes = safes.union(sentence.known_safes())
-            
+
         # Mark cells as mines and safes
         for mine in mines:
             self.mark_mine(mine)
@@ -224,7 +222,6 @@ class MinesweeperAI():
 
         # Infer new sentences from existing knowledge
         self.infer_knowledge(changed)
-
 
     def infer_knowledge(self, changed):
         if not changed:
@@ -251,7 +248,7 @@ class MinesweeperAI():
 
                 if sentence2.cells.issubset(sentence1.cells):
                     found_subset = True
-                    new_set =  sentence1.cells.difference(sentence2.cells)
+                    new_set = sentence1.cells.difference(sentence2.cells)
                     new_count = sentence1.count - sentence2.count
                     new_sentence = Sentence(new_set, new_count)
                     self.knowledge.append(new_sentence)
@@ -271,7 +268,6 @@ class MinesweeperAI():
         # Check for new cells to mark
         self.mark_cells(changed)
 
-
     def add_knowledge(self, cell, count):
         """
         Called when the Minesweeper board tells us, for a given
@@ -286,7 +282,7 @@ class MinesweeperAI():
                if it can be concluded based on the AI's knowledge base
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
-        """        
+        """
         self.moves_made.add(cell)
 
         self.mark_safe(cell)
@@ -294,7 +290,6 @@ class MinesweeperAI():
         self.add_sentence(cell, count)
 
         self.mark_cells(True)
-
 
     def make_safe_move(self):
         """
